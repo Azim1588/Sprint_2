@@ -16,21 +16,36 @@ class View(QWidget):
         main_layout = QVBoxLayout()
         self.setLayout(main_layout)
 
-        # Board Size at the top
-        board_size_layout = QHBoxLayout()
+        # Board Size and Game Mode Layout
+        board_game_mode_layout = QHBoxLayout()
+        
+        # Board Size selection
         board_size_label = QLabel("Choose board size:", self)
         board_size_label.setStyleSheet("font-size: 20px;")
         self.board_size_combo = QComboBox(self)
         self.board_size_combo.addItems(["3", "4", "8", "10"])
         self.board_size_combo.setStyleSheet("font-size: 20px;")
-        self.board_size_combo.currentIndexChanged.connect(self.start_new_game_with_size)
 
-        board_size_layout.addWidget(board_size_label)
-        board_size_layout.addWidget(self.board_size_combo)
-        board_size_layout.setAlignment(Qt.AlignCenter)
+        # Game Mode selection
+        game_mode_label = QLabel("Choose game mode:", self)
+        game_mode_label.setStyleSheet("font-size: 20px;")
+        self.game_mode_combo = QComboBox(self)
+        self.game_mode_combo.addItems(["Simple Game", "General Game"])
+        self.game_mode_combo.setStyleSheet("font-size: 20px;")
 
-        # Add board size layout to main layout
-        main_layout.addLayout(board_size_layout)
+        # Connect dropdown changes to game reset
+        self.board_size_combo.currentIndexChanged.connect(self.start_new_game_with_settings)
+        self.game_mode_combo.currentIndexChanged.connect(self.start_new_game_with_settings)
+
+        # Add board size and game mode widgets to layout
+        board_game_mode_layout.addWidget(board_size_label)
+        board_game_mode_layout.addWidget(self.board_size_combo)
+        board_game_mode_layout.addWidget(game_mode_label)
+        board_game_mode_layout.addWidget(self.game_mode_combo)
+        board_game_mode_layout.setAlignment(Qt.AlignCenter)
+
+        # Add the layout to the main layout
+        main_layout.addLayout(board_game_mode_layout)
 
         # Create a horizontal layout for player selections
         player_layout = QHBoxLayout()
@@ -41,13 +56,13 @@ class View(QWidget):
         player1_label.setStyleSheet("font-size: 18px; font-weight: bold;")
         player1_symbol_label = QLabel("Choose symbol (X or O):", self)
         player1_symbol_label.setStyleSheet("font-size: 16px;")
-        self.player1_symbol_combo = QComboBox(self)
+        self.player1_symbol_combo = QComboBox(self)  # Initialize this combo box for Player 1 symbols
         self.player1_symbol_combo.addItems(["X", "O"])
         self.player1_symbol_combo.setStyleSheet("font-size: 16px;")
 
         player1_color_label = QLabel("Choose color (Blue or Red):", self)
         player1_color_label.setStyleSheet("font-size: 16px;")
-        self.player1_color_combo = QComboBox(self)
+        self.player1_color_combo = QComboBox(self)  # Initialize this combo box for Player 1 colors
         self.player1_color_combo.addItems(["Blue", "Red"])
         self.player1_color_combo.setStyleSheet("font-size: 16px;")
 
@@ -64,13 +79,13 @@ class View(QWidget):
         player2_label.setStyleSheet("font-size: 18px; font-weight: bold;")
         player2_symbol_label = QLabel("Choose symbol (X or O):", self)
         player2_symbol_label.setStyleSheet("font-size: 16px;")
-        self.player2_symbol_combo = QComboBox(self)
+        self.player2_symbol_combo = QComboBox(self)  # Initialize this combo box for Player 2 symbols
         self.player2_symbol_combo.addItems(["X", "O"])
         self.player2_symbol_combo.setStyleSheet("font-size: 16px;")
 
         player2_color_label = QLabel("Choose color (Red or Blue):", self)
         player2_color_label.setStyleSheet("font-size: 16px;")
-        self.player2_color_combo = QComboBox(self)
+        self.player2_color_combo = QComboBox(self)  # Initialize this combo box for Player 2 colors
         self.player2_color_combo.addItems(["Red", "Blue"])
         self.player2_color_combo.setStyleSheet("font-size: 16px;")
 
@@ -101,22 +116,22 @@ class View(QWidget):
 
         # New Game Button
         self.new_game_button = QPushButton('New Game', self)
-        self.new_game_button.clicked.connect(self.start_new_game_with_size)
+        self.new_game_button.clicked.connect(self.start_new_game_with_settings)
         main_layout.addWidget(self.new_game_button, alignment=Qt.AlignCenter)
 
-    def start_new_game_with_size(self):
-        # Get the selected board size from the dropdown
+    def start_new_game_with_settings(self):
+        # Get the selected board size and game mode from the dropdowns
         size = int(self.board_size_combo.currentText())
-        
+        game_mode = self.game_mode_combo.currentText()
+
         # Get selected symbols and colors for both players
         player1_symbol = self.player1_symbol_combo.currentText()
         player1_color = self.player1_color_combo.currentText().lower()  # Convert color to lowercase for consistency
-        
         player2_symbol = self.player2_symbol_combo.currentText()
         player2_color = self.player2_color_combo.currentText().lower()
 
-        # Set up the game with player choices
-        self.controller.restart_game(size, player1_symbol, player1_color, player2_symbol, player2_color)
+        # Set up the game with the selected options
+        self.controller.restart_game(size, player1_symbol, player1_color, player2_symbol, player2_color, game_mode)
         self.reset_board(size)
         self.update_display()
 
@@ -156,4 +171,3 @@ class View(QWidget):
     def update_display(self):
         current_player = self.controller.players[self.controller.current_player_index]
         self.status_label.setText(f"{current_player.name}'s turn")
-
